@@ -29,13 +29,8 @@ func Login(context *gin.Context) {
 func CreateAccount(context *gin.Context) {
 	var validated Requests.CreateUserRequest
 	if err := context.ShouldBindJSON(&validated); err != nil {
-		var ve validator.ValidationErrors
-		if errors.As(err, &ve) {
-			out := make([]Validator.ErrorMsg, len(ve))
-			for i, fe := range ve {
-				out[i] = Validator.ErrorMsg{Field: fe.StructField(), Message: Validator.GetErrorMsg(fe)}
-			}
-			context.JSON(http.StatusBadRequest, gin.H{"error": "Validation error", "data": out})
+		if validationErrors := Validator.GetValidationErrors(err); validationErrors != nil {
+			context.JSON(http.StatusBadRequest, gin.H{"message": validationError, "errors": validationErrors})
 			return
 		}
 	}
