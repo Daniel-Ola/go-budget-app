@@ -3,7 +3,6 @@ package Controllers
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 	"net/http"
 	"nielscript.com/budgetapp/api/app/Models"
 	"nielscript.com/budgetapp/api/app/Requests"
@@ -15,16 +14,23 @@ const loginSuccessful, validationError = "User signed in successfully", "Validat
 const createUserFailed = "Failed to create user"
 
 func Login(context *gin.Context) {
-	var validated Requests.CreateUserRequest
+	gin.BasicAuth(gin.Accounts{})
+	var validated Requests.LoginUserRequest
 	if err := context.ShouldBindJSON(&validated); err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		if validationErrors := Validator.GetValidationErrors(err); validationErrors != nil {
+			context.JSON(http.StatusBadRequest, gin.H{"message": validationError, "errors": validationErrors})
+			return
+		}
+	}
+
+	user, err := UserServices.CheckAuth(validated.Email, validated.Password)
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, err.Error())
 		return
 	}
 
-	context.JSON(http.StatusOK, gin.H{"firstName": validated.FirstName})
-
-	//params := context.Request.Body
-	//fmt.Println(params)
+	context.JSON(http.StatusOK, gin.H{"message": loginSuccessful, "data": user})
+	return
 }
 
 func CreateAccount(context *gin.Context) {
