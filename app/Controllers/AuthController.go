@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"nielscript.com/budgetapp/api/app/Models"
 	"nielscript.com/budgetapp/api/app/Requests"
+	UserServices "nielscript.com/budgetapp/api/app/Services"
 	"nielscript.com/budgetapp/api/app/Validator"
 )
 
@@ -42,7 +43,7 @@ func CreateAccount(context *gin.Context) {
 	user, err := Models.CreateNewUser(validated)
 
 	if err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user", "data": err.Error()})
+		context.JSON(http.StatusInternalServerError, gin.H{"error": createUserFailed, "data": err.Error()})
 		return
 	}
 
