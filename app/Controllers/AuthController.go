@@ -1,7 +1,7 @@
 package Controllers
 
 import (
-	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"net/http"
@@ -39,6 +39,10 @@ func CreateAccount(context *gin.Context) {
 			return
 		}
 	}
+
+	validated.Password, _ = UserServices.HashPassword(validated.Password)
+
+	fmt.Println("hashed password is: ", validated.Password)
 
 	user, err := Models.CreateNewUser(validated)
 
