@@ -1,6 +1,8 @@
 package Models
 
 import (
+	"errors"
+	"gorm.io/gorm"
 	"nielscript.com/budgetapp/api/app/Requests"
 	"nielscript.com/budgetapp/api/database"
 	"time"
@@ -47,6 +49,31 @@ func FindUser(userId uint) (User, error) {
 		PhoneNumber: "",
 		Password:    "",
 	}, nil
+}
+
+func FindUserByEmail(email string) (User, error) {
+	var user User
+	result := database.DB.Where(&User{Email: email}).First(&user)
+	if result.Error != nil {
+		if notFound := errors.Is(result.Error, gorm.ErrRecordNotFound); notFound == true {
+			return user, errors.New("user not found")
+		}
+	}
+
+	return user, nil
+}
+
+func FindUserByField(fieldName string, fieldValue any) (User, error) {
+	var user User
+	query := map[string]interface{}{fieldName: fieldValue}
+	result := database.DB.Where(query).First(&user)
+	if result.Error != nil {
+		if notFound := errors.Is(result.Error, gorm.ErrRecordNotFound); notFound == true {
+			return user, errors.New("user not found")
+		}
+	}
+
+	return user, nil
 }
 
 // DeleteUser
