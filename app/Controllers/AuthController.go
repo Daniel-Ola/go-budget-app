@@ -10,6 +10,9 @@ import (
 	"nielscript.com/budgetapp/api/app/Validator"
 )
 
+const loginSuccessful, validationError = "User signed in successfully", "Validation Error"
+const createUserFailed = "Failed to create user"
+
 func Login(context *gin.Context) {
 	var validated Requests.CreateUserRequest
 	if err := context.ShouldBindJSON(&validated); err != nil {
