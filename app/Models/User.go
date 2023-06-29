@@ -9,18 +9,18 @@ import (
 )
 
 type User struct {
-	ID           string
-	FirstName    string
-	LastName     string
-	UserName     string `gorm:"unique"`
-	Email        string `gorm:"unique"`
-	PhoneNumber  string `gorm:"unique"`
-	Password     string
-	CreatedAt    time.Time
-	DeletedAt    time.Time
-	UpdatedAt    time.Time
-	Wallets      []Wallet
-	Transactions []Transaction
+	ID           string        `json:"-"`
+	FirstName    string        `json:"first_name"`
+	LastName     string        `json:"last_name"`
+	UserName     string        `json:"user_name" gorm:"unique"`
+	Email        string        `json:"email" gorm:"unique"`
+	PhoneNumber  string        `json:"phone_number" gorm:"unique"`
+	Password     string        `json:"-"`
+	CreatedAt    time.Time     `json:"created_at"`
+	DeletedAt    time.Time     `json:"-"`
+	UpdatedAt    time.Time     `json:"-"`
+	Wallets      []Wallet      `json:"wallets"`
+	Transactions []Transaction `json:"transactions"`
 }
 
 func CreateNewUser(request Requests.CreateUserRequest) (User, error) {
