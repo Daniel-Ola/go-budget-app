@@ -14,7 +14,6 @@ const loginSuccessful, validationError = "User signed in successfully", "Validat
 const createUserFailed = "Failed to create user"
 
 func Login(context *gin.Context) {
-	gin.BasicAuth(gin.Accounts{})
 	var validated Requests.LoginUserRequest
 	if err := context.ShouldBindJSON(&validated); err != nil {
 		if validationErrors := Validator.GetValidationErrors(err); validationErrors != nil {
@@ -29,7 +28,13 @@ func Login(context *gin.Context) {
 		return
 	}
 
-	context.JSON(http.StatusOK, gin.H{"message": loginSuccessful, "data": user})
+	token, err := UserServices.GenerateJWT(user.UserName, context.GetHeader("app-key"))
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Internal Error " + err.Error()})
+		return
+	}
+
+	context.JSON(http.StatusOK, gin.H{"message": loginSuccessful, "data": user, "token": token})
 	return
 }
 
@@ -56,3 +61,21 @@ func CreateAccount(context *gin.Context) {
 	context.JSON(http.StatusOK, gin.H{"data": user})
 	return
 }
+
+// payload
+/*
+
+username
+email
+names
+refresh token (encrypted)
+expire
+stillValid
+signature - app-keys
+
+when user signs in and credentials verified
+a row is created - userId, timestamps, stillValid, refreshToken, lastUsed
+the refresh token is encrypted and sent together with the JWT which is just created
+when user signs out, the token is deleted and the jWT expires
+
+*/
