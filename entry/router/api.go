@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"nielscript.com/budgetapp/api/app/Controllers"
 	"nielscript.com/budgetapp/api/database"
+	"nielscript.com/budgetapp/api/entry/middlewares"
 )
 
 func Routes() {
@@ -17,7 +18,7 @@ func Routes() {
 		authRoutes.POST("/login", Controllers.Login)
 	}
 
-	userRoutes := r.Group("/user")
+	userRoutes := r.Group("/user").Use(middlewares.AuthRequired())
 
 	{
 		userRoutes.GET("/", Controllers.User)
